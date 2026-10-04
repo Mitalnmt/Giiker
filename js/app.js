@@ -251,7 +251,28 @@ function showResult(grid, solution) {
                     const color = blockColorMap[blockId] || '#7c3aed';
                     cell.style.background = color;
                     cell.textContent = blockId;
-                    cell.style.fontSize = '0.75rem';
+                    cell.style.fontSize = '0.7rem';
+                    
+                    // Smart borders: chỉ vẽ border ở ranh giới block
+                    const borderWidth = '4px';
+                    const borderColor = 'rgba(0, 0, 0, 0.8)';
+                    
+                    // Check top
+                    if (r === 0 || grid[r-1][c] !== val) {
+                        cell.style.borderTop = `${borderWidth} solid ${borderColor}`;
+                    }
+                    // Check right
+                    if (c === 7 || grid[r][c+1] !== val) {
+                        cell.style.borderRight = `${borderWidth} solid ${borderColor}`;
+                    }
+                    // Check bottom
+                    if (r === 7 || grid[r+1][c] !== val) {
+                        cell.style.borderBottom = `${borderWidth} solid ${borderColor}`;
+                    }
+                    // Check left
+                    if (c === 0 || grid[r][c-1] !== val) {
+                        cell.style.borderLeft = `${borderWidth} solid ${borderColor}`;
+                    }
                 }
             } else {
                 cell.style.background = '#1a1a2e';

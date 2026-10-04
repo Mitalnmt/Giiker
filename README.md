@@ -1,102 +1,86 @@
 # Block Puzzle Solver
 
-🎮 Công cụ giải đố khối 8×8 tự động với giao diện hiện đại
+Công cụ giải puzzle khối 8×8 tự động với giao diện hiện đại. Chọn màu khối, vẽ bảng, và để AI tìm giải pháp tối ưu.
 
-## Tính năng
+![Block Puzzle Demo](https://img.shields.io/badge/status-active-success)
 
-- ✨ Giao diện đẹp, responsive (máy tính + điện thoại)
-- 🎯 Click để tạo bảng 8×8
-- 🔒 Chọn khối bị khóa
-- 🚀 Giải tự động bằng backtracking
-- 📋 Xuất kết quả
+## 🎯 Tính năng
 
-## Demo Online
+- ✨ **Giao diện hiện đại**: Dark mode với gradient và animations
+- 🎨 **Chọn theo màu**: 4 nhóm màu (Đỏ, Vàng, Xanh Dương, Xanh Lá), mỗi nhóm 4 blocks
+- 🖌️ **Vẽ bảng tự do**: Click/drag để đánh dấu ô cần phủ
+- 🤖 **Giải tự động**: Thuật toán backtracking nhanh
+- 📊 **Kết quả trực quan**: Smart borders phân biệt rõ từng block
+- 📋 **Export**: Copy kết quả ra clipboard
 
-🌐 [https://your-username.github.io/blockextra](https://your-username.github.io/blockextra)
+## 🚀 Cách dùng
 
-## Cài đặt local
+1. **Mở file**: `index.html` trong trình duyệt
+2. **Chọn màu**: Click vào 4 ô màu để chọn blocks sử dụng
+3. **Vẽ bảng**: Click/drag trên grid 8×8 để đánh dấu ô sáng
+4. **Giải**: Bấm "Giải ngay" để tìm solution
+5. **Xem kết quả**: Các blocks được hiển thị với viền rõ ràng
 
-```bash
-# Clone repo
-git clone https://github.com/your-username/blockextra.git
-cd blockextra
-
-# Chạy local server
-python -m http.server 8000
-# Mở http://localhost:8000
-```
-
-## Deploy lên GitHub Pages
-
-### Bước 1: Tạo repository
-
-```bash
-git init
-git add .
-git commit -m "Initial commit"
-git branch -M main
-git remote add origin https://github.com/your-username/blockextra.git
-git push -u origin main
-```
-
-### Bước 2: Bật GitHub Pages
-
-1. Vào **Settings** của repo
-2. Chọn **Pages** (menu bên trái)
-3. **Source**: Deploy from a branch
-4. **Branch**: main, folder: / (root)
-5. Click **Save**
-6. Đợi vài phút, truy cập: `https://your-username.github.io/blockextra`
-
-## Files
+## 📁 Cấu trúc
 
 ```
 blockextra/
-├── index.html        # HTML chính
-├── style.css         # CSS hiện đại
-├── blocks-data.js    # Dữ liệu 14 khối
-├── solver.js         # Thuật toán giải
-├── app.js            # Logic app
-├── block.md          # Định nghĩa khối (Python)
-├── solver.py         # Solver Python
-└── README.md         # File này
+├── index.html          # Giao diện chính
+├── css/
+│   └── style.css       # Styling
+├── js/
+│   ├── app.js          # Logic UI và control
+│   ├── blocks-data.js  # Định nghĩa 16 blocks theo 4 màu
+│   └── solver.js       # Thuật toán backtracking
+└── README.md           # File này
 ```
 
-## Sử dụng
+## 🎨 Blocks
 
-### Web App
+### Nhóm Đỏ (D1-D4)
+- D1: L-shape
+- D2: Line 4 ô + 1 nhánh
+- D3: T-shape rộng
+- D4: Z-shape lớn
 
-1. **Tạo bảng**: Click vào ô để bật/tắt (xanh = cần phủ, tối = không dùng)
-2. **Chọn khối bị khóa**: Click vào khối trong danh sách
-3. **Giải**: Click "Giải ngay"
-4. **Xuất**: Click "Xuất kết quả" để copy
+### Nhóm Vàng (V1-V4)
+- V1: J-shape dài
+- V2: Cross nhỏ
+- V3: Line thẳng 4 ô
+- V4: Zigzag đôi
 
-### Python Script
+### Nhóm Xanh Dương (X1-X4)
+- X1: Cross lớn
+- X2: L-shape ngược
+- X3: Góc nhỏ
+- X4: L dài
 
-```bash
-# Điền input file (8x8 board + blocked blocks)
-python solver.py
+### Nhóm Xanh Lá (L1-L4)
+- L1: T-shape cao
+- L2: Z-shape
+- L3: M-shape
+- L4: L-shape vuông
 
-# Đọc output file
-cat output
-```
+## 🛠️ Công nghệ
 
-## Format Input (Python)
+- **HTML5**: Cấu trúc semantic
+- **CSS3**: Gradients, animations, flexbox/grid
+- **Vanilla JavaScript**: Không dependencies
+- **Font**: Inter từ Google Fonts
 
-```
-BOARD:
-1 1 1 1 0 1 1 1
-1 1 1 0 0 1 1 1
-... (8 dòng x 8 cột)
+## 💡 Thuật toán
 
-BLOCKED:
-B1 B3 B6
-```
+Backtracking với optimizations:
+1. Tìm ô chưa phủ
+2. Thử từng block + rotation
+3. Check conflicts
+4. Recursion depth-first
+5. Backtrack nếu fail
 
-## Khối có sẵn
+## 📝 License
 
-14 khối từ B1 đến B14, mỗi khối có thể xoay 4 hướng.
+MIT - Free to use
 
-## License
+## 👤 Author
 
-MIT
+Block Puzzle Solver © 2026
