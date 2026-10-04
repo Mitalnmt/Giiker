@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Block Puzzle Solver - Giải đố khối</title>
+    <meta name="description" content="Công cụ giải puzzle khối 8x8 tự động với giao diện hiện đại">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">
+                <span class="gradient-text">Block Puzzle Solver</span>
+            </h1>
+        </header>
+
+        <main class="main-content">
+            <div class="panel board-panel">
+                <div class="panel-header">
+                    <h2>Bảng 8×8</h2>
+                    <div class="controls">
+                        <button id="clearBoard" class="btn btn-secondary">Xóa tất cả</button>
+                        <button id="fillBoard" class="btn btn-secondary">Điền đầy</button>
+                    </div>
+                </div>
+                <div class="board-container">
+                    <div id="board" class="board"></div>
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color active"></div>
+                            <span>Ô sáng (cần phủ)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color inactive"></div>
+                            <span>Ô tối (không dùng)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel blocks-panel">
+                <div class="panel-header">
+                    <h2>Các khối</h2>
+                    <p class="hint">Click để chọn khối bị khóa</p>
+                </div>
+                <div id="blocks" class="blocks-grid"></div>
+                <div class="block-stats">
+                    <span id="blockedCount">0 khối bị khóa</span>
+                </div>
+            </div>
+        </main>
+
+        <div class="action-bar">
+            <button id="solveBtn" class="btn btn-primary btn-large">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 3L3 7L10 11L17 7L10 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M3 13L10 17L17 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                    <path d="M3 10L10 14L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Giải ngay
+            </button>
+        </div>
+
+        <div id="resultPanel" class="panel result-panel hidden">
+            <div class="panel-header">
+                <h2>Kết quả</h2>
+                <button id="closeResult" class="btn btn-icon">✕</button>
+            </div>
+            <div id="resultContent" class="result-content"></div>
+            <div class="result-actions">
+                <button id="exportResult" class="btn btn-secondary">Xuất kết quả</button>
+            </div>
+        </div>
+
+        <div id="loadingOverlay" class="loading-overlay hidden">
+            <div class="loading-spinner"></div>
+            <p>Đang tính toán...</p>
+        </div>
+    </div>
+
+    <script src="js/blocks-data.js"></script>
+    <script src="js/solver.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
