@@ -1,6 +1,6 @@
-// Main application logic
+// Main application logic - Color based selection
 let boardState = Array(8).fill(null).map(() => Array(8).fill(1));
-let blockedBlocks = new Set();
+let selectedColors = new Set(['red', 'yellow', 'blue', 'green']); // Mặc định chọn tất cả
 let isDragging = false;
 let dragMode = null; // 'paint' or 'erase'
 
@@ -90,71 +90,67 @@ function updateBoard() {
     });
 }
 
-// Initialize blocks
-function initBlocks() {
-    const blocksEl = document.getElementById('blocks');
-    blocksEl.innerHTML = '';
+// Initialize color selector
+function initColorSelector() {
+    const selectorEl = document.getElementById('colorSelector');
+    selectorEl.innerHTML = '';
     
-    Object.keys(BLOCKS_DATA).forEach(blockId => {
-        const blockItem = document.createElement('div');
-        blockItem.className = 'block-item';
-        blockItem.dataset.blockId = blockId;
+    const colorIcons = {
+        'red': '🔴',
+        'yellow': '🟡',
+        'blue': '🔵',
+        'green': '🟢'
+    };
+    
+    Object.keys(COLOR_GROUPS).forEach(colorKey => {
+        const colorData = COLOR_GROUPS[colorKey];
+        const colorItem = document.createElement('div');
+        colorItem.className = 'color-item';
+        colorItem.style.background = colorData.color;
+        colorItem.dataset.color = colorKey;
         
-        const preview = createBlockPreview(BLOCKS_DATA[blockId]);
-        const label = document.createElement('div');
-        label.className = 'block-label';
-        label.textContent = blockId;
-        
-        blockItem.appendChild(preview);
-        blockItem.appendChild(label);
-        blockItem.addEventListener('click', () => toggleBlock(blockId));
-        
-        blocksEl.appendChild(blockItem);
-    });
-}
-
-function createBlockPreview(blockData) {
-    const preview = document.createElement('div');
-    preview.className = 'block-preview';
-    
-    const rows = blockData.length;
-    const cols = Math.max(...blockData.map(row => row.length));
-    
-    preview.style.gridTemplateRows = `repeat(${rows}, 10px)`;
-    preview.style.gridTemplateColumns = `repeat(${cols}, 10px)`;
-    
-    for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-            const cell = document.createElement('div');
-            if (blockData[r] && blockData[r][c] === 1) {
-                cell.className = 'block-cell';
-            } else {
-                cell.style.opacity = '0';
-            }
-            preview.appendChild(cell);
+        if (selectedColors.has(colorKey)) {
+            colorItem.classList.add('selected');
         }
-    }
-    
-    return preview;
-}
-
-function toggleBlock(blockId) {
-    if (blockedBlocks.has(blockId)) {
-        blockedBlocks.delete(blockId);
-    } else {
-        blockedBlocks.add(blockId);
-    }
-    updateBlocks();
-}
-
-function updateBlocks() {
-    document.querySelectorAll('.block-item').forEach(item => {
-        const blockId = item.dataset.blockId;
-        item.classList.toggle('blocked', blockedBlocks.has(blockId));
+        
+        const icon = document.createElement('div');
+        icon.className = 'color-icon';
+        icon.textContent = colorIcons[colorKey];
+        
+        const label = document.createElement('div');
+        label.className = 'color-label';
+        label.textContent = colorData.name;
+        
+        colorItem.appendChild(icon);
+        colorItem.appendChild(label);
+        colorItem.addEventListener('click', () => toggleColor(colorKey));
+        
+        selectorEl.appendChild(colorItem);
     });
     
-    document.getElementById('blockedCount').textContent = 
-        `${blockedBlocks.size} khối bị khóa`;
+    updateColorCount();
+}
+
+function toggleColor(colorKey) {
+    if (selectedColors.has(colorKey)) {
+        selectedColors.delete(colorKey);
+    } else {
+        selectedColors.add(colorKey);
+    }
+    updateColorSelector();
+}
+
+function updateColorSelector() {
+    document.querySelectorAll('.color-item').forEach(item => {
+        const colorKey = item.dataset.color;
+        item.classList.toggle('selected', selectedColors.has(colorKey));
+    });
+    updateColorCount();
+}
+
+function updateColorCount() {
+    document.getElementById('selectedCount').textContent = 
+        `${selectedColors.size} màu được chọn`;
 }
 
 // Board controls
@@ -172,7 +168,6 @@ document.getElementById('fillBoard').addEventListener('click', () => {
 document.getElementById('solveBtn').addEventListener('click', async () => {
     const loading = document.getElementById('loadingOverlay');
     const resultPanel = document.getElementById('resultPanel');
-    const resultContent = document.getElementById('resultContent');
     
     loading.classList.remove('hidden');
     resultPanel.classList.add('hidden');
@@ -181,10 +176,30 @@ document.getElementById('solveBtn').addEventListener('click', async () => {
     await new Promise(resolve => setTimeout(resolve, 100));
     
     try {
+        // Lấy blocks từ màu được chọn
+        const availableBlocks = [];
+        selectedColors.forEach(colorKey => {
+            availableBlocks.push(...COLOR_GROUPS[colorKey].blocks);
+        });
+        
+        if (availableBlocks.length === 0) {
+            loading.classList.add('hidden');
+            showError('Vui lòng chọn ít nhất 1 màu để đặt khối.');
+            return;
+        }
+        
+        // Lọc BLOCKS_DATA để chỉ lấy blocks available
+        const filteredBlocks = {};
+        availableBlocks.forEach(blockId => {
+            if (BLOCKS_DATA[blockId]) {
+                filteredBlocks[blockId] = BLOCKS_DATA[blockId];
+            }
+        });
+        
         const solver = new PuzzleSolver(
             boardState,
-            BLOCKS_DATA,
-            Array.from(blockedBlocks)
+            filteredBlocks,
+            [] // Không có blocked blocks vì đã filter rồi
         );
         
         const solved = solver.solve();
@@ -195,7 +210,7 @@ document.getElementById('solveBtn').addEventListener('click', async () => {
             const grid = solver.getSolutionGrid();
             showResult(grid, solver.solution);
         } else {
-            showError('Không tìm thấy giải pháp. Thử điều chỉnh bảng hoặc bỏ khóa thêm khối.');
+            showError('Không tìm thấy giải pháp. Thử điều chỉnh bảng hoặc chọn thêm màu.');
         }
     } catch (error) {
         loading.classList.add('hidden');
@@ -213,11 +228,14 @@ function showResult(grid, solution) {
     const resultBoard = document.createElement('div');
     resultBoard.className = 'result-board';
     
-    const colors = [
-        '#7c3aed', '#ec4899', '#f59e0b', '#10b981', 
-        '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6',
-        '#f97316', '#06b6d4', '#84cc16', '#a855f7'
-    ];
+    // Map block ID to color
+    const blockColorMap = {};
+    Object.keys(COLOR_GROUPS).forEach(colorKey => {
+        const colorData = COLOR_GROUPS[colorKey];
+        colorData.blocks.forEach(blockId => {
+            blockColorMap[blockId] = colorData.color;
+        });
+    });
     
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -226,9 +244,15 @@ function showResult(grid, solution) {
             const val = grid[r][c];
             
             if (val > 0) {
-                const colorIdx = (val - 3) % colors.length;
-                cell.style.background = colors[colorIdx];
-                cell.textContent = val;
+                // Lấy block ID từ solution
+                const solutionIdx = val - 3;
+                if (solution[solutionIdx]) {
+                    const blockId = solution[solutionIdx].blockId;
+                    const color = blockColorMap[blockId] || '#7c3aed';
+                    cell.style.background = color;
+                    cell.textContent = blockId;
+                    cell.style.fontSize = '0.75rem';
+                }
             } else {
                 cell.style.background = '#1a1a2e';
             }
@@ -239,14 +263,34 @@ function showResult(grid, solution) {
     
     resultContent.appendChild(resultBoard);
     
-    // Info
+    // Info with color grouping
+    const colorGroups = {};
+    solution.forEach((s, i) => {
+        const blockId = s.blockId;
+        const colorKey = Object.keys(COLOR_GROUPS).find(k => 
+            COLOR_GROUPS[k].blocks.includes(blockId)
+        );
+        if (colorKey) {
+            if (!colorGroups[colorKey]) {
+                colorGroups[colorKey] = [];
+            }
+            colorGroups[colorKey].push(blockId);
+        }
+    });
+    
     const info = document.createElement('div');
     info.className = 'result-info';
+    
+    let colorInfo = '';
+    Object.keys(colorGroups).forEach(colorKey => {
+        const colorData = COLOR_GROUPS[colorKey];
+        const blocks = colorGroups[colorKey];
+        colorInfo += `<p style="margin-top: 0.5rem;"><strong style="color: ${colorData.color}">${colorData.name}:</strong> ${blocks.join(', ')}</p>`;
+    });
+    
     info.innerHTML = `
         <p>✓ Tìm thấy giải pháp với <strong>${solution.length} khối</strong></p>
-        <p style="margin-top: 0.5rem; font-size: 0.875rem;">
-            ${solution.map((s, i) => `Khối ${i+3}: ${s.blockId}`).join(' • ')}
-        </p>
+        ${colorInfo}
     `;
     resultContent.appendChild(info);
     
@@ -302,4 +346,4 @@ document.getElementById('exportResult').addEventListener('click', () => {
 
 // Initialize
 initBoard();
-initBlocks();
+initColorSelector();
